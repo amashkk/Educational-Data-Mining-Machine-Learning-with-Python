@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #f9fafb;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        .active-tab {
+            background-color: #2563eb;
+            color: white;
+        }
+        .inactive-tab {
+            background-color: white;
+            color: #4b5563;
+        }
+        .inactive-tab:hover {
+            background-color: #f3f4f6;
+        }
+        /* Toggle Switch Style */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #68D391;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #68D391;
+        }
+    </style>
+</head>
+<body>
+    <div id="root" class="min-h-screen bg-gray-50 p-6">
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Learning Analytics Dashboard</h1>
+            <p class="text-gray-600">Higher Education Student Retention Prediction System - Dataset contains 4,424 student records</p>
+        </div>
+
+        <div class="mb-6 flex gap-2" id="navTabs">
+            <button class="px-6 py-2 rounded-lg font-medium transition-colors active-tab" onclick="switchView('overview')">
+                📊 Overview
+            </button>
+            <button class="px-6 py-2 rounded-lg font-medium transition-colors inactive-tab" onclick="switchView('models')">
+                🤖 Model Analysis
+            </button>
+            </div>
+
+        <div id="overview-view">
+             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4" style="border-color: #3b82f6;">
+                    <p class="text-gray-500 text-sm font-medium">Total Students</p>
+                    <h3 class="text-3xl font-bold mt-2" style="color: #3b82f6;">4,424</h3>
+                    <p class="text-gray-600 text-xs mt-1">Total records in dataset</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4" style="border-color: #10b981;">
+                    <p class="text-gray-500 text-sm font-medium">Graduation Rate</p>
+                    <h3 class="text-3xl font-bold mt-2" style="color: #10b981;">49.9%</h3>
+                    <p class="text-gray-600 text-xs mt-1">2,209 students graduated successfully</p>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-600 font-bold">📈 +32.0%</span>
+                        <span class="text-gray-500 ml-2">vs Enrolled</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4" style="border-color: #ef4444;">
+                    <p class="text-gray-500 text-sm font-medium">Dropout Rate</p>
+                    <h3 class="text-3xl font-bold mt-2" style="color: #ef4444;">32.1%</h3>
+                    <p class="text-gray-600 text-xs mt-1">1,421 students dropped out</p>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-red-600 font-bold">📈 +14.2%</span>
+                        <span class="text-gray-500 ml-2">vs Enrolled</span>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4" style="border-color: #8b5cf6;">
+                    <p class="text-gray-500 text-sm font-medium">Best Model Accuracy</p>
+                    <h3 class="text-3xl font-bold mt-2" style="color: #8b5cf6;">77.2%</h3>
+                    <p class="text-gray-600 text-xs mt-1">Random Forest (Tuned)</p>
+                    <div class="mt-4 flex items-center text-sm">
+                        <span class="text-green-600 font-bold">📈 +3.8%</span>
+                        <span class="text-gray-500 ml-2">Bal. Acc vs Original</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Student Status Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="pieChart"></canvas>
+                    </div>
+                    <div class="mt-4 space-y-2">
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 rounded-full mr-2" style="background-color: #10b981;"></div>
+                                <span class="text-gray-700">Graduate</span>
+                            </div>
+                            <span class="font-semibold text-gray-800">2,209 students</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 rounded-full mr-2" style="background-color: #ef4444;"></div>
+                                <span class="text-gray-700">Dropout</span>
+                            </div>
+                            <span class="font-semibold text-gray-800">1,421 students</span>
+                        </div>
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="flex items-center">
+                                <div class="w-3 h-3 rounded-full mr-2" style="background-color: #f59e0b;"></div>
+                                <span class="text-gray-700">Enrolled</span>
+                            </div>
+                            <span class="font-semibold text-gray-800">794 students</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Key Feature Importance</h3>
+                    <div class="chart-container">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">* Average approved units and grade are the most dominant predictors</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Semester Performance Trend - Average Credits Passed</h3>
+                <div class="chart-container">
+                    <canvas id="lineChart"></canvas>
+                </div>
+                <p class="text-sm text-gray-600 mt-4">
+                    📈 <strong>Key Finding:</strong> Graduate students maintain high performance (avg ~6 units), while Dropouts show significant decline (avg < 2 units).
+                </p>
+            </div>
+        </div>
+
+        <div id="models-view" style="display: none;">
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Select Model</h3>
+                        <div class="flex gap-2">
+                            <button onclick="selectModel('Random Forest')" id="btn-rf" class="px-4 py-2 rounded-lg font-medium transition-all bg-blue-600 text-white shadow-lg">
+                                Random Forest
+                            </button>
+                            <button onclick="selectModel('SVM')" id="btn-svm" class="px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200">
+                                SVM
+                            </button>
+                            <button onclick="selectModel('XGBoost')" id="btn-xgb" class="px-4 py-2 rounded-lg font-medium transition-all bg-gray-100 text-gray-700 hover:bg-gray-200">
+                                XGBoost
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-lg border border-gray-200">
+                        <span class="text-sm font-medium text-gray-600" id="label-baseline">Original</span>
+                        <div class="relative inline-block w-12 h-6 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" name="toggle" id="toggle-tuning" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-gray-300"/>
+                            <label for="toggle-tuning" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                        </div>
+                        <span class="text-sm font-bold text-gray-800" id="label-tuned">Tuned</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6" id="modelMetrics">
+                <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                    <p class="text-gray-600 text-sm font-medium mb-2">Accuracy</p>
+                    <p class="text-3xl font-bold" style="color: #3b82f6;" id="metric-accuracy">--%</p>
+                    <p class="text-xs text-gray-500 mt-1" id="metric-diff-accuracy"></p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                    <p class="text-gray-600 text-sm font-medium mb-2">Precision</p>
+                    <p class="text-3xl font-bold" style="color: #10b981;" id="metric-precision">--%</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                    <p class="text-gray-600 text-sm font-medium mb-2">Recall</p>
+                    <p class="text-3xl font-bold" style="color: #f59e0b;" id="metric-recall">--%</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                    <p class="text-gray-600 text-sm font-medium mb-2">F1 Score</p>
+                    <p class="text-3xl font-bold" style="color: #8b5cf6;" id="metric-f1">--%</p>
+                    <p class="text-xs text-gray-500 mt-1" id="metric-diff-f1"></p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-4 text-center">
+                    <p class="text-gray-600 text-sm font-medium mb-2">Bal. Accuracy</p> 
+                    <p class="text-3xl font-bold" style="color: #ec4899;" id="metric-balacc">--%</p>
+                    <p class="text-xs text-gray-500 mt-1" id="metric-diff-balacc"></p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Original vs Tuned (Balanced Accuracy)</h3>
+                    <div class="chart-container">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Performance Analysis</h3>
+                    <div class="p-4 bg-blue-50 rounded-lg mb-4">
+                        <p class="text-sm text-blue-800">
+                            <strong>✨ Tuning Impact Analysis:</strong> 
+                            <span id="tuning-impact-text">
+                                While overall Accuracy slightly decreased, <strong>Balanced Accuracy improved significantly (+3.8%)</strong> in the Random Forest model. This indicates the Tuned model is much better at identifying the minority class (Dropouts) correctly.
+                            </span>
+                        </p>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-700">Random Forest (Bal. Acc)</span>
+                                <span class="text-sm font-bold text-green-600">+3.79%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-700">SVM (Bal. Acc)</span>
+                                <span class="text-sm font-bold text-green-600">+0.26%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: 10%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="text-sm font-medium text-gray-700">XGBoost (Bal. Acc)</span>
+                                <span class="text-sm font-bold text-green-600">+0.20%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: 8%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+             <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Confusion Matrix (Best Model: Tuned RF)</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr>
+                                <th class="border border-gray-300 p-3 bg-gray-100"></th>
+                                <th class="border border-gray-300 p-3 bg-gray-100 font-semibold">Pred: Dropout</th>
+                                <th class="border border-gray-300 p-3 bg-gray-100 font-semibold">Pred: Enrolled</th>
+                                <th class="border border-gray-300 p-3 bg-gray-100 font-semibold">Pred: Graduate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="border border-gray-300 p-3 bg-gray-100 font-semibold">Actual: Dropout</td>
+                                <td class="border border-gray-300 p-3 bg-green-100 text-center">
+                                    <div class="text-2xl font-bold text-green-700">203</div>
+                                    <div class="text-xs text-green-600">Recall 71.5%</div>
+                                </td>
+                                <td class="border border-gray-300 p-3 bg-red-50 text-center">
+                                    <div class="text-lg font-semibold text-gray-700">55</div>
+                                </td>
+                                <td class="border border-gray-300 p-3 bg-red-50 text-center">
+                                    <div class="text-lg font-semibold text-gray-700">26</div>
+                                </td>
+                            </tr>
+                             <tr>
+                                <td class="border border-gray-300 p-3 bg-gray-100 font-semibold">Actual: Enrolled</td>
+                                <td class="border border-gray-300 p-3 bg-red-50 text-center">
+                                    <div class="text-lg font-semibold text-gray-700">26</div>
+                                </td>
+                                <td class="border border-gray-300 p-3 bg-green-100 text-center">
+                                    <div class="text-2xl font-bold text-green-700">99</div>
+                                    <div class="text-xs text-green-600">Recall 62.3%</div>
+                                </td>
+                                <td class="border border-gray-300 p-3 bg-red-50 text-center">
+                                    <div class="text-lg font-semibold text-gray-700">34</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="border border-gray-300 p-3 bg-gray-100 font-semibold">Actual: Graduate</td>
+                                <td class="border border-gray-300 p-3 bg-red-50 text-center">
+                                    <div class="text-lg font-semibold text-gray-700">5</div>
+                                </td>
+                                <td class="border border-gray-300 p-3 bg-red-50 text-center">
+                                    <div class="text-lg font-semibold text-gray-700">52</div>
+                                </td>
+                                <td class="border border-gray-300 p-3 bg-green-100 text-center">
+                                    <div class="text-2xl font-bold text-green-700">370</div>
+                                    <div class="text-xs text-green-600">Recall 86.7%</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        </div>
+
+    <script>
+        // Chart variables
+        let pieChart, barChart, lineChart, comparisonChart;
+
+        // Model data: Updated EXACLY from your new table
+        const fullModelData = {
+            'Random Forest': {
+                baseline: { accuracy: 0.786207, precision: 0.772357, recall: 0.786207, f1: 0.770202, bal_acc: 0.696749 },
+                tuned:    { accuracy: 0.772414, precision: 0.793342, recall: 0.772414, f1: 0.778795, bal_acc: 0.734647 } 
+            },
+            'SVM': {
+                baseline: { accuracy: 0.743678, precision: 0.772522, recall: 0.743678, f1: 0.752865, bal_acc: 0.705014 },
+                tuned:    { accuracy: 0.743678, precision: 0.782346, recall: 0.743678, f1: 0.754134, bal_acc: 0.707663 }
+            },
+            'XGBoost': {
+                baseline: { accuracy: 0.777011, precision: 0.771976, recall: 0.777011, f1: 0.773497, bal_acc: 0.710651 },
+                tuned:    { accuracy: 0.759770, precision: 0.774316, recall: 0.759770, f1: 0.764556, bal_acc: 0.712645 }
+            }
+        };
+
+        let selectedModel = 'Random Forest';
+        let isTuned = true; // Default to Tuned view
+
+        // Toggle Tuning Event Listener
+        document.getElementById('toggle-tuning').checked = true; // Default checked
+        document.getElementById('toggle-tuning').addEventListener('change', function() {
+            isTuned = this.checked;
+            updateUI();
+        });
+
+        function switchView(view) {
+            document.getElementById('overview-view').style.display = 'none';
+            document.getElementById('models-view').style.display = 'none';
+            // 💡 Insights view 的處理已被移除
+
+            const viewElement = document.getElementById(view + '-view');
+            if (viewElement) {
+                viewElement.style.display = 'block';
+            }
+
+            document.querySelectorAll('#navTabs button').forEach(btn => {
+                btn.classList.remove('active-tab');
+                btn.classList.add('inactive-tab');
+            });
+            // 確保事件觸發者存在
+            if (event && event.target) {
+                event.target.classList.remove('inactive-tab');
+                event.target.classList.add('active-tab');
+            }
+            
+            if (view === 'overview' && !pieChart) {
+                initializeCharts();
+            } else if (view === 'models') {
+                // Always refresh model chart when switching tab
+                if(comparisonChart) comparisonChart.destroy();
+                initializeModelChart();
+                updateUI();
+            }
+        }
+
+        function selectModel(model) {
+            selectedModel = model;
+            updateUI();
+        }
+
+        function updateUI() {
+            // Update Buttons Style
+            ['btn-rf', 'btn-svm', 'btn-xgb'].forEach(id => {
+                const btn = document.getElementById(id);
+                btn.classList.remove('bg-blue-600', 'text-white', 'shadow-lg');
+                btn.classList.add('bg-gray-100', 'text-gray-700');
+            });
+
+            if (selectedModel === 'Random Forest') document.getElementById('btn-rf').classList.add('bg-blue-600', 'text-white', 'shadow-lg');
+            else if (selectedModel === 'SVM') document.getElementById('btn-svm').classList.add('bg-blue-600', 'text-white', 'shadow-lg');
+            else document.getElementById('btn-xgb').classList.add('bg-blue-600', 'text-white', 'shadow-lg');
+            
+            // Remove gray style for active button
+             if (selectedModel === 'Random Forest') document.getElementById('btn-rf').classList.remove('bg-gray-100', 'text-gray-700');
+            else if (selectedModel === 'SVM') document.getElementById('btn-svm').classList.remove('bg-gray-100', 'text-gray-700');
+            else document.getElementById('btn-xgb').classList.remove('bg-gray-100', 'text-gray-700');
+
+
+            // Get Data
+            const type = isTuned ? 'tuned' : 'baseline';
+            const data = fullModelData[selectedModel][type];
+            const baselineData = fullModelData[selectedModel]['baseline']; // For comparison
+
+            // Update Metrics Numbers
+            document.getElementById('metric-accuracy').textContent = (data.accuracy * 100).toFixed(1) + '%';
+            document.getElementById('metric-precision').textContent = (data.precision * 100).toFixed(1) + '%';
+            document.getElementById('metric-recall').textContent = (data.recall * 100).toFixed(1) + '%';
+            document.getElementById('metric-f1').textContent = (data.f1 * 100).toFixed(1) + '%';
+            document.getElementById('metric-balacc').textContent = (data.bal_acc * 100).toFixed(1) + '%';
+
+            // Show diff if tuned
+            if (isTuned) {
+                // Helper to set diff or hide if negative
+                const setDiff = (elemId, current, base) => {
+                    const diff = ((current - base) * 100).toFixed(2);
+                    const elem = document.getElementById(elemId);
+                    if (diff >= 0) {
+                        elem.innerHTML = `<span class="text-green-500">+${diff}% vs Original</span>`;
+                    } else {
+                        elem.innerHTML = ''; // Hide if negative
+                    }
+                };
+
+                setDiff('metric-diff-accuracy', data.accuracy, baselineData.accuracy);
+                setDiff('metric-diff-f1', data.f1, baselineData.f1);
+                setDiff('metric-diff-balacc', data.bal_acc, baselineData.bal_acc);
+
+            } else {
+                document.getElementById('metric-diff-accuracy').textContent = 'Original Result';
+                document.getElementById('metric-diff-f1').textContent = 'Original Result';
+                document.getElementById('metric-diff-balacc').textContent = 'Original Result';
+            }
+
+            // Update Chart
+            if (comparisonChart) {
+                comparisonChart.destroy();
+                initializeModelChart();
+            }
+        }
+
+        function initializeCharts() {
+            // Pie Chart - Student Distribution
+            const pieCtx = document.getElementById('pieChart').getContext('2d');
+            pieChart = new Chart(pieCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Graduate', 'Dropout', 'Enrolled'],
+                    datasets: [{
+                        data: [2209, 1421, 794],
+                        backgroundColor: ['#10b981', '#ef4444', '#f59e0b'],
+                        borderColor: ['#059669', '#dc2626', '#d97706'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Bar Chart - Feature Importance
+            const barCtx = document.getElementById('barChart').getContext('2d');
+            barChart = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Avg Approved', 'Avg Grade', 'avg_enrolled', 'Age(Negative Correlation)', ],
+                    datasets: [{
+                        label: 'Importance',
+                        data: [64, 58, 24, -28,],
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            // Bar Chart - Semester Trends
+            const lineCtx = document.getElementById('lineChart').getContext('2d');
+            lineChart = new Chart(lineCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['1st Semester', '2nd Semester'],
+                    datasets: [
+                        {
+                            label: 'Dropout Students',
+                            data: [2.55, 1.94],
+                            backgroundColor: '#ef4444',
+                            borderColor: '#dc2626',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Graduate Students',
+                            data: [6.23, 6.18],
+                            backgroundColor: '#10b981',
+                            borderColor: '#059669',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Overall Average',
+                            data: [4.71, 4.44],
+                            backgroundColor: '#f59e0b',
+                            borderColor: '#d97706',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 8
+                        }
+                    }
+                }
+            });
+        }
+
+        function initializeModelChart() {
+            const comparisonCtx = document.getElementById('comparisonChart').getContext('2d');
+            
+            // Prepare Data based on Toggle
+            let datasets = [];
+            
+            // CHANGED: Chart now uses Balanced Accuracy (bal_acc) instead of accuracy
+            const models = ['Random Forest', 'SVM', 'XGBoost'];
+            const baselineData = models.map(m => fullModelData[m].baseline.bal_acc);
+            const tunedData = models.map(m => fullModelData[m].tuned.bal_acc);
+
+            if (isTuned) {
+                datasets = [
+                    {
+                        label: 'Original Bal. Acc.',
+                        data: baselineData,
+                        backgroundColor: '#9ca3af' // Gray
+                    },
+                    {
+                        label: 'Tuned Bal. Acc.',
+                        data: tunedData,
+                        backgroundColor: '#3b82f6' // Blue
+                    }
+                ];
+            } else {
+                 datasets = [
+                    {
+                        label: 'Original Bal. Acc.',
+                        data: baselineData,
+                        backgroundColor: '#3b82f6'
+                    }
+                ];
+            }
+
+            comparisonChart = new Chart(comparisonCtx, {
+                type: 'bar',
+                data: {
+                    labels: models,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                         tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + (context.parsed.y * 100).toFixed(2) + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 0.85, 
+                            min: 0.6  
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize charts on page load
+        window.addEventListener('load', () => {
+            initializeCharts();
+            updateUI(); // Init metrics
+        });
+    </script>
+</body>
+</html>
